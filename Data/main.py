@@ -1,4 +1,4 @@
-import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import tree, __all__
 from sklearn.model_selection import train_test_split
@@ -8,11 +8,13 @@ from sklearn.naive_bayes import GaussianNB,CategoricalNB,ComplementNB,BernoulliN
 from sklearn.preprocessing import LabelEncoder,StandardScaler,MinMaxScaler
 from sklearn.tree import DecisionTreeClassifier
 import matplotlib.pyplot  as plt
+import matplotlib
 from sklearn.ensemble import RandomForestClassifier
 import seaborn as sb
 from ydata_profiling import ProfileReport
 from sklearn.ensemble import RandomForestRegressor
 from sklearn import metrics
+import webbrowser
 # fetch dataset
 
 breast_cancer = fetch_ucirepo(id=14)
@@ -31,10 +33,10 @@ Y = df.iloc[:,-1]
 
 profile=ProfileReport(df)
 profile.to_file("your_report.html")
-driver.get("")
+webbrowser.open_new_tab("your_report.html")
 scaler=StandardScaler()
 g=sb.FacetGrid(df)
-g.map(sb.distplot)
+g.map(sb.displot)
 # print(df["irradiat"].unique())
 
 # labels,mapping=pd.factorize(df["irradiat"].unique())[0]
@@ -102,6 +104,10 @@ g.map(sb.distplot)
 LE=LabelEncoder()
 for i in X.columns:
     X[i]=LE.fit_transform(X[i].astype(str))
+plt.matshow(X.corr())
+plt.savefig("corr.jpg")
+sb.pairplot(X.corr(), vars=X.columns) # Figure 6
+plt.savefig("corr_seaborn.jpg")
 cor=X.corr()
 cor_list=[]
 print()
@@ -112,7 +118,10 @@ for i in range(cor.shape[0]):
             cor_list.append(cor.index[i])
             break
 X=X[cor_list]
-
+plt.matshow(X)
+plt.savefig("corr_before.jpg")
+sb.pairplot(cor, vars=cor.columns) # Figure 6
+plt.savefig("corr_b_seaborn.jpg")
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, Y, train_size=0.7
@@ -150,4 +159,12 @@ canb=CategoricalNB()
 canb.fit(X_train,y_train)
 y_predict_canb=canb.predict(X_test)
 print("accuracy of the model(CANB):",metrics.accuracy_score(y_test,y_predict_canb))
+# plt.matshow(df.corr())
+# plt.savefig("corr_df.jpg")
+# sb.pairplot(df, vars=df.columns) # Figure 6
+# plt.savefig("corr_df_seaborn.jpg")
 
+plt.matshow(X.corr())
+plt.savefig("corr.jpg")
+sb.pairplot(X, vars=X.columns) # Figure 6
+plt.savefig("corr_seaborn.jpg")
