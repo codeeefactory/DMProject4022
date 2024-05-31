@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn import tree, __all__
+from sklearn import tree
 from sklearn.model_selection import train_test_split
 from ucimlrepo import fetch_ucirepo
 import pandas as pd
@@ -124,7 +124,7 @@ sb.pairplot(cor, vars=cor.columns) # Figure 6
 plt.savefig("corr_b_seaborn.jpg")
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, Y, train_size=0.7
+    X, Y, train_size=0.7,stratify=Y
 )
 dtc=DecisionTreeClassifier(random_state=0,max_depth=4)
 dtc=dtc.fit(X_train,y_train)
