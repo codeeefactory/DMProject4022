@@ -24,6 +24,7 @@ import webbrowser
 pca=PCA(n_components=2)
 breast_cancer = fetch_ucirepo(id=14)
 df=pd.DataFrame.from_dict(breast_cancer.data.features)
+#months map dict
 months_map={"Mar":"3","Oct":"10","Jun":"6","Dec":"12","Sep":"9","May":"5"}
 def replacegarbage(txt):
     if isinstance(txt,str):
