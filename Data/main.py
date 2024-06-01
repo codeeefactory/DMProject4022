@@ -1,5 +1,8 @@
+import re
+
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy
 from sklearn import tree
 from sklearn.model_selection import train_test_split
 from ucimlrepo import fetch_ucirepo
@@ -14,11 +17,35 @@ import seaborn as sb
 from ydata_profiling import ProfileReport
 from sklearn.ensemble import RandomForestRegressor
 from sklearn import metrics
+from sklearn.decomposition import PCA
+import networkx as nx
 import webbrowser
 # fetch dataset
-
+pca=PCA(n_components=2)
 breast_cancer = fetch_ucirepo(id=14)
 df=pd.DataFrame.from_dict(breast_cancer.data.features)
+months_map={"Mar":"3","Oct":"10","Jun":"6","Dec":"12","Sep":"9","May":"5"}
+def replacegarbage(txt):
+    if isinstance(txt,str):
+        for y in months_map:
+            txt= txt.replace(y,months_map[y])
+    return txt
+for x in  df.select_dtypes(include='object'):
+    df[x]=df[x].apply(replacegarbage)
+
+for cul in df.select_dtypes(include='number'):
+    plt.hist(df[cul],bins=5)
+    plt.xlabel(cul)
+    plt.ylabel('Frequency')
+    plt.title(cul)
+    plt.show()
+for col in df.select_dtypes(include='object'):
+    menopause_counts=df[col].value_counts()
+    sb.barplot(x=menopause_counts.index,y=menopause_counts.values)
+    plt.xlabel(f'{col} Counts')
+    plt.ylabel('Frequency')
+    plt.title(menopause_counts.name)
+    plt.show()
 # print(df)
 # print(df.describe())
 # print(df.columns)
@@ -26,6 +53,7 @@ df=pd.DataFrame.from_dict(breast_cancer.data.features)
 # print(df.dtypes)
 # data (as pandas dataframes)
 X = breast_cancer.data.features
+
 X=X.iloc[:,:-1]
 Y = breast_cancer.data.labels
 df["irradiat"]=df["irradiat"].apply(lambda x:0 if x=="no" else 1)
@@ -34,7 +62,7 @@ Y = df.iloc[:,-1]
 profile=ProfileReport(df)
 profile.to_file("your_report.html")
 webbrowser.open_new_tab("your_report.html")
-scaler=StandardScaler()
+# scaler=StandardScaler()
 g=sb.FacetGrid(df)
 g.map(sb.displot)
 # print(df["irradiat"].unique())
@@ -112,6 +140,19 @@ cor=X.corr()
 cor_list=[]
 print()
 print(cor)
+princple_component=pca.fit_transform(X.values)
+princple_df=pd.DataFrame(data=princple_component,columns=['pca','pca2'])
+print(princple_df)
+ct_table=pd.crosstab(df["breast"],df["breast-quad"])
+chi2_stat, p, dof, expected = scipy.stats.chi2_contingency(ct_table)
+if p<=0.05:
+    print("meaningful")
+else:
+    print("not meaningful")
+print(f"chi2 statistic:     {chi2_stat:.5g}")
+print(f"p-value:            {p:.5g}")
+print(f"degrees of freedom: {dof}")
+print("expected frequencies:\n", expected)
 for i in range(cor.shape[0]):
     for j in range(cor.shape[1]):
         if (i!=j)and cor.iloc[i,j]>=0.10:
@@ -138,7 +179,7 @@ rfc.fit(X_train,y_train)
 y_predict=rfc.predict(X_test)
 print("accuracy of the model:",metrics.accuracy_score(y_test,y_predict))
 
-fig.savefig('treeeeeeeeee5321555456114645665466446514e1.jpg')
+fig.savefig('dTree.jpg')
 gnb=GaussianNB()
 gnb.fit(X_train,y_train)
 y_predict_gnb=gnb.predict(X_test)
